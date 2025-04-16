@@ -1,131 +1,255 @@
+import { useState } from "react";
+
+const chapas = [
+  "Branco TX",
+  "Preto TX",
+  "Cru",
+  "Mocca Fibraplac",
+  "Italian Noce Eucatex",
+  "Noce Oro Eucatex",
+  "Cinza Italia Lacca Eucatex",
+  "OUTROS"
+];
+
+const espessuras = ["3", "6", "9", "15", "18"];
+
 export default function Home() {
   const [cliente, setCliente] = useState("");
   const [pecas, setPecas] = useState([
-    {
-      id: 1,
-      qtde: 1,
-      c: "",
-      l: "",
-      chapa: "Branco TX",
-      espessura: "15",
-      veio: false,
-      ambiente: "",
-      observacoes: [],
-      obsOutros: "",
-      fita: "Branco TX",
-      fitaOutro: "",
-      lados: { c1: false, c2: false, l1: false, l2: false, todos: false }
-    }
+    criarPeca()
   ]);
 
-  const chapas = [
-    "Branco TX",
-    "Preto TX",
-    "Cru",
-    "Mocca Fibraplac",
-    "Italian Noce Eucatex",
-    "Noce Oro Eucatex",
-    "Cinza Italia Lacca Eucatex",
-    "OUTROS"
-  ];
-
-  const obsFixas = [
-    "2F LADO MAIOR",
-    "3F LADO MAIOR",
-    "4F LADO MAIOR",
-    "2F LADO MENOR",
-    "OUTROS"
-  ];
-
-  const addPeca = () => {
-    const ultima = pecas[pecas.length - 1];
-    setPecas([...pecas, {
-      ...ultima,
-      id: pecas.length + 1,
-      qtde: 1,
+  function criarPeca(copiarChapa = "", copiarEspessura = "") {
+    return {
+      qtde: "",
       c: "",
       l: "",
+      chapa: copiarChapa,
+      chapaOutro: "",
+      espessura: copiarEspessura || "15",
+      podeGirar: true,
       ambiente: "",
       observacoes: [],
-      obsOutros: "",
-      fitaOutro: "",
-      lados: { c1: false, c2: false, l1: false, l2: false, todos: false }
-    }]);
+      observacaoOutro: "",
+      fita: copiarChapa,
+      ladosFita: []
+    };
+  }
+
+  const handleAddPeca = () => {
+    const ultima = pecas[pecas.length - 1];
+    setPecas([...pecas, criarPeca(ultima.chapa, ultima.espessura)]);
   };
 
-  const excluirPeca = (index) => {
-    const novas = pecas.filter((_, i) => i !== index).map((p, i) => ({ ...p, id: i + 1 }));
+  const handleRemovePeca = (index) => {
+    const novas = [...pecas];
+    novas.splice(index, 1);
     setPecas(novas);
   };
 
-  const toggleTodosLados = (index) => {
-    const novo = [...pecas];
-    const todos = !novo[index].lados.todos;
-    novo[index].lados = { c1: todos, c2: todos, l1: todos, l2: todos, todos };
-    setPecas(novo);
-  };
-
-  const handleChange = (index, campo, valor) => {
-    const novo = [...pecas];
-    novo[index][campo] = valor;
-    if (campo === "chapa" && valor !== "OUTROS") {
-      novo[index].fita = valor;
-      novo[index].fitaOutro = "";
-    }
-    setPecas(novo);
-  };
-
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Formulário de Peças - 3F</h1>
+    <div style={{ padding: 20 }}>
+      <h1>Formulário de Peças - 3F</h1>
+
       <input
         placeholder="CLIENTE"
         value={cliente}
-        onChange={e => setCliente(e.target.value)}
-        className="border p-2 w-full mb-4"
+        onChange={(e) => setCliente(e.target.value)}
+        style={{ display: "block", marginBottom: 20 }}
       />
-      {pecas.map((peca, i) => (
-        <div key={i} className="grid grid-cols-12 gap-2 items-center mb-4 border-b pb-2">
-          <div className="col-span-1 font-semibold">#{peca.id}</div>
-          <input className="col-span-1 border p-2" placeholder="QTDE" type="number" value={peca.qtde} onChange={e => handleChange(i, "qtde", e.target.value)} />
-          <input className="col-span-1 border p-2" placeholder="C" type="number" value={peca.c} onChange={e => handleChange(i, "c", e.target.value)} />
-          <input className="col-span-1 border p-2" placeholder="L" type="number" value={peca.l} onChange={e => handleChange(i, "l", e.target.value)} />
-          <select className="col-span-2 border p-2" value={peca.chapa} onChange={e => handleChange(i, "chapa", e.target.value)}>
-            {chapas.map((c, idx) => (
-              <option key={idx}>{c}</option>
+
+      {pecas.map((peca, index) => (
+        <div
+          key={index}
+          style={{
+            display: "flex",
+            gap: 8,
+            flexWrap: "wrap",
+            alignItems: "center",
+            borderBottom: "1px solid #ccc",
+            paddingBottom: 10,
+            marginBottom: 10
+          }}
+        >
+          <strong>#{index + 1}</strong>
+
+          <input
+            type="number"
+            placeholder="Qtde"
+            value={peca.qtde}
+            onChange={(e) => {
+              const v = [...pecas];
+              v[index].qtde = e.target.value;
+              setPecas(v);
+            }}
+            style={{ width: 50 }}
+          />
+
+          <input
+            type="number"
+            placeholder="C (mm)"
+            value={peca.c}
+            onChange={(e) => {
+              const v = [...pecas];
+              v[index].c = Math.min(2750, +e.target.value || "");
+              setPecas(v);
+            }}
+            style={{ width: 80 }}
+          />
+
+          <input
+            type="number"
+            placeholder="L (mm)"
+            value={peca.l}
+            onChange={(e) => {
+              const v = [...pecas];
+              v[index].l = Math.min(2750, +e.target.value || "");
+              setPecas(v);
+            }}
+            style={{ width: 80 }}
+          />
+
+          <select
+            value={peca.chapa}
+            onChange={(e) => {
+              const v = [...pecas];
+              v[index].chapa = e.target.value;
+              v[index].fita = e.target.value;
+              setPecas(v);
+            }}
+          >
+            {chapas.map((ch) => (
+              <option key={ch}>{ch}</option>
             ))}
           </select>
+
           {peca.chapa === "OUTROS" && (
-            <input className="col-span-2 border p-2" placeholder="Nome da chapa" value={peca.chapaOutro || ""} onChange={e => handleChange(i, "chapa", e.target.value)} />
+            <input
+              placeholder="Nome da chapa"
+              value={peca.chapaOutro}
+              onChange={(e) => {
+                const v = [...pecas];
+                v[index].chapaOutro = e.target.value;
+                setPecas(v);
+              }}
+            />
           )}
-          <select className="col-span-1 border p-2" value={peca.espessura} onChange={e => handleChange(i, "espessura", e.target.value)}>
-            {["3", "6", "9", "15", "18"].map((esp, idx) => (
-              <option key={idx}>{esp}</option>
+
+          <select
+            value={peca.espessura}
+            onChange={(e) => {
+              const v = [...pecas];
+              v[index].espessura = e.target.value;
+              setPecas(v);
+            }}
+          >
+            {espessuras.map((esp) => (
+              <option key={esp}>{esp}</option>
             ))}
           </select>
-          <label className="col-span-2 flex items-center gap-2">
-            <input type="checkbox" checked={peca.veio} onChange={() => handleChange(i, "veio", !peca.veio)} />
-            {peca.veio ? "Segue comprimento" : "Pode girar"}
+
+          <label>
+            <input
+              type="checkbox"
+              checked={peca.podeGirar}
+              onChange={(e) => {
+                const v = [...pecas];
+                v[index].podeGirar = e.target.checked;
+                setPecas(v);
+              }}
+            />
+            Pode girar
           </label>
-          <input className="col-span-2 border p-2" placeholder="AMBIENTE" value={peca.ambiente} onChange={e => handleChange(i, "ambiente", e.target.value)} />
-          <div className="col-span-12 text-sm">
-            <p>OBSERVAÇÕES:</p>
-            {obsFixas.map((obs, idx) => (
-              <label key={idx} className="mr-4">
-                <input type="checkbox" checked={peca.observacoes.includes(obs)} onChange={(e) => {
-                  const novaLista = e.target.checked
-                    ? [...peca.observacoes, obs]
-                    : peca.observacoes.filter(o => o !== obs);
-                  handleChange(i, "observacoes", novaLista);
-                }} /> {obs}
+
+          <input
+            placeholder="AMBIENTE"
+            value={peca.ambiente}
+            onChange={(e) => {
+              const v = [...pecas];
+              v[index].ambiente = e.target.value;
+              setPecas(v);
+            }}
+          />
+
+          <fieldset>
+            <legend>OBSERVAÇÕES:</legend>
+            {["2F LADO MAIOR", "3F LADO MAIOR", "4F LADO MAIOR", "2F LADO MENOR", "OUTROS"].map((obs) => (
+              <label key={obs}>
+                <input
+                  type="checkbox"
+                  checked={peca.observacoes.includes(obs)}
+                  onChange={(e) => {
+                    const v = [...pecas];
+                    const set = new Set(v[index].observacoes);
+                    e.target.checked ? set.add(obs) : set.delete(obs);
+                    v[index].observacoes = [...set];
+                    setPecas(v);
+                  }}
+                />
+                {obs}
               </label>
             ))}
             {peca.observacoes.includes("OUTROS") && (
-              <input className="border p-1 mt-1 w-full" placeholder="Especifique" value={peca.obsOutros} onChange={e => handleChange(i, "obsOutros", e.target.value)} />
+              <input
+                placeholder="Digite a observação"
+                value={peca.observacaoOutro}
+                maxLength={60}
+                onChange={(e) => {
+                  const v = [...pecas];
+                  v[index].observacaoOutro = e.target.value;
+                  setPecas(v);
+                }}
+              />
             )}
-          </div>
-          <div className="col-span-3">
-            <p>FITA:</p>
-            <input className="border p-2 w-full" value={peca.fitaOutro || peca.fita} onChange={e => handleChange(i, "fitaOutro", e.target.value)} />
-          </div>
-          <div className="col
+          </fieldset>
+
+          <label>FITA:
+            <input
+              value={peca.fita}
+              onChange={(e) => {
+                const v = [...pecas];
+                v[index].fita = e.target.value;
+                setPecas(v);
+              }}
+            />
+          </label>
+
+          <fieldset>
+            <legend>QUAL LADO VAI A FITA?</legend>
+            {["C1", "C2", "L1", "L2"].map((lado) => (
+              <label key={lado}>
+                <input
+                  type="checkbox"
+                  checked={peca.ladosFita.includes(lado)}
+                  onChange={(e) => {
+                    const v = [...pecas];
+                    const set = new Set(v[index].ladosFita);
+                    e.target.checked ? set.add(lado) : set.delete(lado);
+                    v[index].ladosFita = [...set];
+                    setPecas(v);
+                  }}
+                />
+                {lado}
+              </label>
+            ))}
+            <label>
+              <input
+                type="checkbox"
+                onChange={(e) => {
+                  const v = [...pecas];
+                  v[index].ladosFita = e.target.checked ? ["C1", "C2", "L1", "L2"] : [];
+                  setPecas(v);
+                }}
+              />
+              TODOS OS LADOS
+            </label>
+          </fieldset>
+
+          <button onClick={() => handleRemovePeca(index)}>Excluir</button>
+        </div>
+      ))}
+
+      <button onClick={handleAddPeca}>+ Adicionar Peça</button>
+    </div>
+  );
+}
