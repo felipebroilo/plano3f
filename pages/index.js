@@ -34,12 +34,11 @@ export default function Home() {
       novasPecas[index].chapa = value;
       if (value !== 'OUTROS') {
         novasPecas[index].fita = value;
-        novasPecas[index].fitaOutro = '';
         novasPecas[index].chapaOutro = '';
       }
     } else if (field === 'chapaOutro') {
       novasPecas[index].chapaOutro = value;
-      novasPecas[index].fitaOutro = value; // Atualiza a fita com o nome digitado na chapa OUTROS
+      novasPecas[index].fita = value;
     } else {
       novasPecas[index][field] = value;
     }
@@ -122,7 +121,11 @@ export default function Home() {
 
           <div className="mt-4">
             <label className="block mb-1">FITA:</label>
-            <input value={peca.fitaOutro || peca.fita} onChange={(e) => handleChange(i, 'fitaOutro', e.target.value)} className="p-2 rounded border w-full" />
+            <input
+              value={peca.fitaOutro !== '' || peca.chapa === 'OUTROS' ? peca.fitaOutro : peca.fita}
+              onChange={(e) => handleChange(i, 'fitaOutro', e.target.value)}
+              className="p-2 rounded border w-full"
+            />
           </div>
 
           <div className="mt-4">
@@ -170,4 +173,5 @@ export default function Home() {
     </div>
   );
 }
+
 
