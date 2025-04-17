@@ -16,7 +16,7 @@ export default function Home() {
       veio: false,
       ambiente: '',
       fita: 'Branco TX',
-      fitaOutro: '',
+      fitaManual: '',
       lados: { c1: false, c2: false, l1: false, l2: false, todos: false },
       observacoes: [],
       obsOutros: ''
@@ -34,11 +34,15 @@ export default function Home() {
       novasPecas[index].chapa = value;
       if (value !== 'OUTROS') {
         novasPecas[index].fita = value;
+        novasPecas[index].fitaManual = value;
         novasPecas[index].chapaOutro = '';
       }
     } else if (field === 'chapaOutro') {
       novasPecas[index].chapaOutro = value;
       novasPecas[index].fita = value;
+      novasPecas[index].fitaManual = value;
+    } else if (field === 'fitaManual') {
+      novasPecas[index].fitaManual = value;
     } else {
       novasPecas[index][field] = value;
     }
@@ -67,8 +71,8 @@ export default function Home() {
     nova.largura = '';
     nova.veio = false;
     nova.ambiente = '';
-    nova.fitaOutro = '';
     nova.chapaOutro = '';
+    nova.fitaManual = nova.fita;
     nova.lados = { c1: false, c2: false, l1: false, l2: false, todos: false };
     nova.observacoes = [];
     nova.obsOutros = '';
@@ -122,8 +126,8 @@ export default function Home() {
           <div className="mt-4">
             <label className="block mb-1">FITA:</label>
             <input
-              value={peca.fitaOutro !== '' || peca.chapa === 'OUTROS' ? peca.fitaOutro : peca.fita}
-              onChange={(e) => handleChange(i, 'fitaOutro', e.target.value)}
+              value={peca.fitaManual}
+              onChange={(e) => handleChange(i, 'fitaManual', e.target.value)}
               className="p-2 rounded border w-full"
             />
           </div>
@@ -173,5 +177,6 @@ export default function Home() {
     </div>
   );
 }
+
 
 
