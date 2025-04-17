@@ -11,6 +11,7 @@ export default function Home() {
       comprimento: '',
       largura: '',
       chapa: 'Branco TX',
+      chapaOutro: '',
       espessura: '15',
       veio: false,
       ambiente: '',
@@ -29,9 +30,12 @@ export default function Home() {
   const handleChange = (index, field, value) => {
     const novasPecas = [...pecas];
     novasPecas[index][field] = value;
-    if (field === 'chapa' && value !== 'OUTROS') {
-      novasPecas[index].fita = value;
-      novasPecas[index].fitaOutro = '';
+    if (field === 'chapa') {
+      if (value !== 'OUTROS') {
+        novasPecas[index].fita = value;
+        novasPecas[index].fitaOutro = '';
+        novasPecas[index].chapaOutro = '';
+      }
     }
     setPecas(novasPecas);
   };
@@ -58,6 +62,7 @@ export default function Home() {
     nova.veio = false;
     nova.ambiente = '';
     nova.fitaOutro = '';
+    nova.chapaOutro = '';
     nova.lados = { c1: false, c2: false, l1: false, l2: false, todos: false };
     nova.observacoes = [];
     nova.obsOutros = '';
@@ -95,12 +100,15 @@ export default function Home() {
             <select value={peca.chapa} onChange={(e) => handleChange(i, 'chapa', e.target.value)} className="p-2 rounded border col-span-2">
               {chapas.map((c, idx) => <option key={idx}>{c}</option>)}
             </select>
+            {peca.chapa === 'OUTROS' && (
+              <input placeholder="Digite o nome da chapa" value={peca.chapaOutro} onChange={(e) => handleChange(i, 'chapaOutro', e.target.value)} className="p-2 rounded border col-span-2" />
+            )}
             <select value={peca.espessura} onChange={(e) => handleChange(i, 'espessura', e.target.value)} className="p-2 rounded border">
               {espessuras.map((e, idx) => <option key={idx}>{e}</option>)}
             </select>
             <label className="flex items-center space-x-2">
               <input type="checkbox" checked={peca.veio} onChange={() => handleChange(i, 'veio', !peca.veio)} />
-              <span>Sentido do Veio</span>
+              <span>{peca.veio ? 'Segue comprimento' : 'Pode girar'}</span>
             </label>
             <input placeholder="AMBIENTE" value={peca.ambiente} onChange={(e) => handleChange(i, 'ambiente', e.target.value)} className="p-2 rounded border col-span-2" />
           </div>
