@@ -29,14 +29,21 @@ export default function Home() {
 
   const handleChange = (index, field, value) => {
     const novasPecas = [...pecas];
-    novasPecas[index][field] = value;
+
     if (field === 'chapa') {
+      novasPecas[index].chapa = value;
       if (value !== 'OUTROS') {
         novasPecas[index].fita = value;
         novasPecas[index].fitaOutro = '';
         novasPecas[index].chapaOutro = '';
       }
+    } else if (field === 'chapaOutro') {
+      novasPecas[index].chapaOutro = value;
+      novasPecas[index].fitaOutro = value; // Atualiza a fita com o nome digitado na chapa OUTROS
+    } else {
+      novasPecas[index][field] = value;
     }
+
     setPecas(novasPecas);
   };
 
@@ -163,3 +170,4 @@ export default function Home() {
     </div>
   );
 }
+
