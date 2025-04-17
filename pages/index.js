@@ -1,72 +1,99 @@
 import { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+
+function criarPeca(overrides = {}) {
+  return {
+    qtde: "",
+    nome: "",
+    c: "",
+    l: "",
+    chapa: "Branco TX",
+    outraChapa: "",
+    espessura: 15,
+    veio: false,
+    ambiente: "",
+    fitaOutro: "Branco TX",
+    lados: { c1: false, c2: false, l1: false, l2: false, todos: false },
+    observacoes: [],
+    obsOutros: "",
+    ...overrides,
+  };
+}
 
 export default function Home() {
   const [cliente, setCliente] = useState("");
-  const [pecas, setPecas] = useState([createNovaPeca()]);
+  const [pecas, setPecas] = useState([criarPeca()]);
   const [selecionado, setSelecionado] = useState(null);
 
   const chapas = [
-    "Branco TX", "Preto TX", "Cru", "Mocca Fibraplac", 
-    "Italian Noce Eucatex", "Noce Oro Eucatex", "Cinza Italia Lacca Eucatex", "OUTROS",
+    "Branco TX",
+    "Preto TX",
+    "Cru",
+    "Mocca Fibraplac",
+    "Italian Noce Eucatex",
+    "Noce Oro Eucatex",
+    "Cinza Italia Lacca Eucatex",
+    "OUTROS",
   ];
   const espessuras = [3, 6, 9, 15, 18];
   const obsFixas = [
-    "2F LADO MAIOR", "3F LADO MAIOR", "4F LADO MAIOR", "2F LADO MENOR", "OUTROS"
+    "2F LADO MAIOR",
+    "3F LADO MAIOR",
+    "4F LADO MAIOR",
+    "2F LADO MENOR",
+    "OUTROS",
   ];
-
-  function createNovaPeca(overrides = {}) {
-    return {
-      qtde: "",
-      nome: "",
-      c: "",
-      l: "",
-      chapa: "Branco TX",
-      outraChapa: "",
-      espessura: 15,
-      veio: false,
-      ambiente: "",
-      fitaOutro: "Branco TX",
-      lados: { c1: false, c2: false, l1: false, l2: false, todos: false },
-      observacoes: [],
-      obsOutros: "",
-      ...overrides
-    };
-  }
 
   const addPeca = () => {
     const ultima = pecas[pecas.length - 1];
-    setPecas([...pecas, createNovaPeca({ chapa: ultima.chapa, espessura: ultima.espessura, fitaOutro: ultima.fitaOutro })]);
+    setPecas([
+      ...pecas,
+      criarPeca({
+        chapa: ultima.chapa,
+        espessura: ultima.espessura,
+        fitaOutro: ultima.fitaOutro,
+      }),
+    ]);
+    setSelecionado(null);
   };
 
   const handleChange = (i, campo, valor) => {
     const novas = pecas.map((p, idx) => {
       if (idx !== i) return p;
-      const updated = { ...p };
+      const atualizado = { ...p };
 
       if ((campo === "c" || campo === "l") && parseInt(valor) > 2750) {
+        alert("Valor máximo de 2750 mm ultrapassado.");
         return p;
       }
+
       if (campo === "lados") {
-        updated.lados = valor === 'todos'
-          ? { c1: !p.lados.todos, c2: !p.lados.todos, l1: !p.lados.todos, l2: !p.lados.todos, todos: !p.lados.todos }
-          : { ...valor };
-      } else if (campo === "chapa") {
-        updated.chapa = valor;
-        if (valor !== "OUTROS") {
-          updated.outraChapa = "";
-          updated.fitaOutro = valor;
+        if (valor === "todos") {
+          const toggle = !p.lados.todos;
+          atualizado.lados = {
+            c1: toggle,
+            c2: toggle,
+            l1: toggle,
+            l2: toggle,
+            todos: toggle,
+          };
         } else {
-          updated.fitaOutro = "";
+          atualizado.lados = { ...valor };
+        }
+      } else if (campo === "chapa") {
+        atualizado.chapa = valor;
+        if (valor !== "OUTROS") {
+          atualizado.outraChapa = "";
+          atualizado.fitaOutro = valor;
+        } else {
+          atualizado.fitaOutro = "";
         }
       } else if (campo === "outraChapa") {
-        updated.outraChapa = valor;
-        updated.fitaOutro = valor;
+        atualizado.outraChapa = valor;
+        atualizado.fitaOutro = valor;
       } else {
-        updated[campo] = valor;
+        atualizado[campo] = valor;
       }
-      return updated;
+      return atualizado;
     });
     setPecas(novas);
   };
@@ -79,71 +106,287 @@ export default function Home() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">Plano de Corte 3F</h1>
-      <div className="mb-4">
-        <label className="block text-sm font-medium mb-1">CLIENTE</label>
+    <div className="max-w-4xl mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Plano de Corte 3F</h1>
+
+      {/* Cliente */}
+      <div className="mb-6">
+        <label className="block mb-1 font-medium">Cliente</label>
         <input
           type="text"
           value={cliente}
-          onChange={e => setCliente(e.target.value)}
-          className="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:border-blue-300"
+          onChange={(e) => setCliente(e.target.value)}
+          className="w-full border rounded px-3 py-2"
           placeholder="Nome do cliente"
+          required
         />
       </div>
 
-      {pecas.map((peca, idx) => (
-        <Card key={idx} className="mb-4">
-          <CardContent>
-            <div className="grid grid-cols-12 gap-3">
-              <input
-                type="number"
-                value={peca.qtde}
-                onChange={e => handleChange(idx, 'qtde', e.target.value)}
-                placeholder="QTDE"
-                className="col-span-1 border rounded p-2"
-              />
-              <input
-                type="text"
-                value={peca.nome}
-                onChange={e => handleChange(idx, 'nome', e.target.value)}
-                placeholder="NOME DA PEÇA"
-                className="col-span-3 border rounded p-2"
-              />
-              <input
-                type="number"
-                value={peca.c}
-                onChange={e => handleChange(idx, 'c', e.target.value)}
-                placeholder="C (mm)"
-                className="col-span-2 border rounded p-2"
-              />
-              <input
-                type="number"
-                value={peca.l}
-                onChange={e => handleChange(idx, 'l', e.target.value)}
-                placeholder="L (mm)"
-                className="col-span-2 border rounded p-2"
-              />
-              <select
-                value={peca.chapa}
-                onChange={e => handleChange(idx, 'chapa', e.target.value)}
-                className="col-span-3 border rounded p-2"
-              >
-                {chapas.map((ch, i) => <option key={i}>{ch}</option>)}
-              </select>
-            </div>
+      {/* Formulário da última peça */}
+      <div className="bg-white shadow rounded p-4 mb-6">
+        <h2 className="text-lg font-semibold mb-3">Nova Peça</h2>
+        <div className="grid grid-cols-12 gap-2">
+          <input
+            type="number"
+            value={pecas[pecas.length - 1].qtde}
+            onChange={(e) =>
+              handleChange(pecas.length - 1, "qtde", e.target.value)
+            }
+            placeholder="Qtde"
+            className="col-span-1 border rounded p-2"
+            required
+          />
+          <input
+            type="text"
+            value={pecas[pecas.length - 1].nome}
+            onChange={(e) =>
+              handleChange(pecas.length - 1, "nome", e.target.value)
+            }
+            placeholder="Nome da peça"
+            className="col-span-3 border rounded p-2"
+            required
+          />
+          <input
+            type="number"
+            value={pecas[pecas.length - 1].c}
+            onChange={(e) =>
+              handleChange(pecas.length - 1, "c", e.target.value)
+            }
+            placeholder="C (mm)"
+            className="col-span-2 border rounded p-2"
+            required
+          />
+          <input
+            type="number"
+            value={pecas[pecas.length - 1].l}
+            onChange={(e) =>
+              handleChange(pecas.length - 1, "l", e.target.value)
+            }
+            placeholder="L (mm)"
+            className="col-span-2 border rounded p-2"
+            required
+          />
+          <select
+            value={pecas[pecas.length - 1].chapa}
+            onChange={(e) =>
+              handleChange(pecas.length - 1, "chapa", e.target.value)
+            }
+            className="col-span-2 border rounded p-2"
+          >
+            {chapas.map((c, i) => (
+              <option key={i}>{c}</option>
+            ))}
+          </select>
+          {pecas[pecas.length - 1].chapa === "OUTROS" && (
+            <input
+              type="text"
+              value={pecas[pecas.length - 1].outraChapa}
+              onChange={(e) =>
+                handleChange(pecas.length - 1, "outraChapa", e.target.value)
+              }
+              placeholder="Especifique chapa"
+              className="col-span-2 border rounded p-2"
+              required
+            />
+          )}
+          <select
+            value={pecas[pecas.length - 1].espessura}
+            onChange={(e) =>
+              handleChange(pecas.length - 1, "espessura", e.target.value)
+            }
+            className="col-span-1 border rounded p-2"
+          >
+            {espessuras.map((e, i) => (
+              <option key={i}>{e}</option>
+            ))}
+          </select>
+          <label className="col-span-3 flex items-center">
+            <input
+              type="checkbox"
+              checked={pecas[pecas.length - 1].veio}
+              onChange={() =>
+                handleChange(
+                  pecas.length - 1,
+                  "veio",
+                  !pecas[pecas.length - 1].veio
+                )
+              }
+              className="mr-2"
+            />
+            {pecas[pecas.length - 1].veio ? "Segue comprimento" : "Pode girar"}
+          </label>
+          <input
+            type="text"
+            value={pecas[pecas.length - 1].ambiente}
+            onChange={(e) =>
+              handleChange(pecas.length - 1, "ambiente", e.target.value)
+            }
+            placeholder="Ambiente"
+            className="col-span-3 border rounded p-2"
+          />
+        </div>
 
-            {/* Demais campos e botões no mesmo estilo responsivo */}
-          </CardContent>
-        </Card>
-      ))}
+        <div className="mt-4">
+          <label className="block mb-1 font-medium">Fita de borda</label>
+          <input
+            type="text"
+            value={pecas[pecas.length - 1].fitaOutro}
+            onChange={(e) =>
+              handleChange(pecas.length - 1, "fitaOutro", e.target.value)
+            }
+            className="w-full border rounded p-2"
+            required
+          />
+        </div>
 
-      <div className="flex gap-3 mt-4">
-        <Button variant="destructive" onClick={excluirPeca}>Excluir Peça</Button>
-        <Button onClick={addPeca}>+ Adicionar Peça</Button>
+        <div className="mt-4">
+          <p className="font-medium mb-1">Lados da fita</p>
+          <div className="flex flex-wrap gap-4">
+            {["c1", "c2", "l1", "l2"].map((lado) => (
+              <label key={lado} className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={pecas[pecas.length - 1].lados[lado]}
+                  onChange={() =>
+                    handleChange(pecas.length - 1, "lados", {
+                      ...pecas[pecas.length - 1].lados,
+                      [lado]: !pecas[pecas.length - 1].lados[lado],
+                    })
+                  }
+                  className="mr-1"
+                />
+                {lado.toUpperCase()}
+              </label>
+            ))}
+            <label className="flex items-center">
+              <input
+                type="checkbox"
+                checked={pecas[pecas.length - 1].lados.todos}
+                onChange={() =>
+                  handleChange(pecas.length - 1, "lados", "todos")
+                }
+                className="mr-1"
+              />
+              TODOS
+            </label>
+          </div>
+        </div>
+
+        <div className="mt-4">
+          <p className="font-medium mb-1">Observações</p>
+          <div className="flex flex-wrap gap-4">
+            {obsFixas.map((obs) => (
+              <label key={obs} className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={pecas[pecas.length - 1].observacoes.includes(obs)}
+                  onChange={(e) => {
+                    const lista = e.target.checked
+                      ? [...pecas[pecas.length - 1].observacoes, obs]
+                      : pecas[pecas.length - 1].observacoes.filter(
+                          (o) => o !== obs
+                        );
+                    handleChange(
+                      pecas.length - 1,
+                      "observacoes",
+                      lista
+                    );
+                  }}
+                  className="mr-1"
+                />
+                {obs}
+              </label>
+            ))}
+          </div>
+          {pecas[pecas.length - 1].observacoes.includes("OUTROS") && (
+            <input
+              type="text"
+              value={pecas[pecas.length - 1].obsOutros}
+              onChange={(e) =>
+                handleChange(
+                  pecas.length - 1,
+                  "obsOutros",
+                  e.target.value
+                )
+              }
+              placeholder="Especifique"
+              className="mt-2 w-full border rounded p-2"
+              required
+            />
+          )}
+        </div>
+
+        <div className="mt-6 flex gap-3">
+          <button
+            onClick={excluirPeca}
+            className="px-4 py-2 bg-red-500 text-white rounded"
+          >
+            Excluir selecionada
+          </button>
+          <button
+            onClick={addPeca}
+            className="px-4 py-2 bg-green-600 text-white rounded"
+          >
+            + Adicionar Peça
+          </button>
+        </div>
       </div>
 
-      {/* Aqui depois: tabela de visualização em tempo real e botão de export */}
+      {/* Tabela de visualização */}
+      <div className="overflow-x-auto">
+        <table className="w-full table-auto text-sm">
+          <thead className="bg-gray-200">
+            <tr>
+              <th className="px-2 py-1">#</th>
+              <th className="px-2 py-1">Qtde</th>
+              <th className="px-2 py-1">Peça</th>
+              <th className="px-2 py-1">C (mm)</th>
+              <th className="px-2 py-1">L (mm)</th>
+              <th className="px-2 py-1">Chapa</th>
+              <th className="px-2 py-1">Esp</th>
+              <th className="px-2 py-1">Veio</th>
+              <th className="px-2 py-1">Ambiente</th>
+              <th className="px-2 py-1">Fita</th>
+              <th className="px-2 py-1">Lados</th>
+              <th className="px-2 py-1">Obs</th>
+            </tr>
+          </thead>
+          <tbody>
+            {pecas.map((p, i) => (
+              <tr
+                key={i}
+                onClick={() => setSelecionado(i)}
+                className={`cursor-pointer ${
+                  selecionado === i ? "bg-blue-100" : "hover:bg-gray-50"
+                }`}
+              >
+                <td className="border px-2 py-1">{i + 1}</td>
+                <td className="border px-2 py-1">{p.qtde}</td>
+                <td className="border px-2 py-1">{p.nome}</td>
+                <td className="border px-2 py-1">{p.c}</td>
+                <td className="border px-2 py-1">{p.l}</td>
+                <td className="border px-2 py-1">
+                  {p.chapa === "OUTROS" ? p.outraChapa : p.chapa}
+                </td>
+                <td className="border px-2 py-1">{p.espessura}</td>
+                <td className="border px-2 py-1">{p.veio ? "S" : "N"}</td>
+                <td className="border px-2 py-1">{p.ambiente}</td>
+                <td className="border px-2 py-1">{p.fitaOutro}</td>
+                <td className="border px-2 py-1">
+                  {["c1", "c2", "l1", "l2"]
+                    .filter((lado) => p.lados[lado])
+                    .join(", ") || "-"}
+                </td>
+                <td className="border px-2 py-1">
+                  {p.observacoes.join(", ") ||
+                    (p.obsOutros ? p.obsOutros : "-")}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
+
