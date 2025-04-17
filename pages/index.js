@@ -2,13 +2,13 @@
 import { useState } from "react";
 
 const materialCodeMap = {
-  "Branco TX": { "3.0": 1384, "6.0": 1108, "15.0": 1105, "18.0": 1109 },
-  "Preto TX": { "15.0": 1509, "18.0": 1508 },
-  "Cru":      { "6.0": 1500, "9.0": 1593, "15.0": 1389, "18.0": 1402 },
-  "Mocca Fibraplac":          { "15.0": 1666, "18.0": 1107 },
-  "Italian Noce Eucatex":     { "15.0": 1668 },
-  "Cinza Itália Lacca Eucatex": { "15.0": 1670 },
-  "Noce Oro Eucatex":         { "15.0": 1669 },
+  "BRANCO TX": { "3.0": 1384, "6.0": 1108, "15.0": 1105, "18.0": 1109 },
+  "PRETO TX": { "15.0": 1509, "18.0": 1508 },
+  "CRU":      { "6.0": 1500, "9.0": 1593, "15.0": 1389, "18.0": 1402 },
+  "MOCCA FIBRAPLAC":          { "15.0": 1666, "18.0": 1107 },
+  "ITALIAN NOCE EUCATEX":     { "15.0": 1668 },
+  "NOCE ORO EUCATEX":         { "15.0": 1669 },
+  "CINZA ITALIA LACCA EUCATEX": { "15.0": 1670 },
   "OUTROS": {}
 };
 
@@ -18,12 +18,12 @@ function criarPeca(overrides = {}) {
     nome: "",
     c: "",
     l: "",
-    chapa: "Branco TX",
+    chapa: "BRANCO TX",
     outraChapa: "",
     espessura: 15,
     veio: false,
     ambiente: "",
-    fitaOutro: "Branco TX",
+    fitaOutro: "BRANCO TX",
     lados: { c1: false, c2: false, l1: false, l2: false, todos: false },
     observacoes: [],
     obsOutros: "",
@@ -37,13 +37,13 @@ export default function Home() {
   const [selecionado, setSelecionado] = useState(null);
 
   const chapas = [
-    "Branco TX",
-    "Preto TX",
-    "Cru",
-    "Mocca Fibraplac",
-    "Italian Noce Eucatex",
-    "Noce Oro Eucatex",
-    "Cinza Itália Lacca Eucatex",
+    "BRANCO TX",
+    "PRETO TX",
+    "CRU",
+    "MOCCA FIBRAPLAC",
+    "ITALIAN NOCE EUCATEX",
+    "NOCE ORO EUCATEX",
+    "CINZA ITALIA LACCA EUCATEX",
     "OUTROS",
   ];
   const espessuras = [3, 6, 9, 15, 18];
@@ -53,6 +53,18 @@ export default function Home() {
     "4F LADO MAIOR",
     "2F LADO MENOR",
     "OUTROS",
+  ];
+  const nomeSugestoes = [
+    "BASE",
+    "DIVISORIA",
+    "ESPALA",
+    "FRENTE",
+    "FUNDO",
+    "GAVETA",
+    "LATERAL",
+    "PORTA",
+    "PRATELEIRA",
+    "TAMPO",
   ];
 
   const addPeca = () => {
@@ -199,16 +211,23 @@ export default function Home() {
             }
             required
           />
+
           <input
             type="text"
+            list="nome-pecas"
             placeholder="Nome da peça"
             className="col-span-3 border rounded p-2"
             value={pecas[pecas.length - 1].nome}
             onChange={(e) =>
               handleChange(pecas.length - 1, "nome", e.target.value)
             }
-            required
           />
+          <datalist id="nome-pecas">
+            {nomeSugestoes.map((n) => (
+              <option key={n} value={n} />
+            ))}
+          </datalist>
+
           <input
             type="number"
             placeholder="C (mm)"
@@ -229,6 +248,7 @@ export default function Home() {
             }
             required
           />
+
           <select
             className="col-span-2 border rounded p-2"
             value={pecas[pecas.length - 1].chapa}
@@ -256,21 +276,19 @@ export default function Home() {
               required
             />
           )}
+
           <select
             className="col-span-1 border rounded p-2"
             value={pecas[pecas.length - 1].espessura}
             onChange={(e) =>
-              handleChange(
-                pecas.length - 1,
-                "espessura",
-                e.target.value
-              )
+              handleChange(pecas.length - 1, "espessura", e.target.value)
             }
           >
             {espessuras.map((e, i) => (
               <option key={i}>{e}</option>
             ))}
           </select>
+
           <label className="col-span-3 flex items-center">
             <input
               type="checkbox"
@@ -285,20 +303,17 @@ export default function Home() {
               }
             />
             {pecas[pecas.length - 1].veio
-              ? "Segue comprimento"
-              : "Pode girar"}
+              ? "SEGUE COMPRIMENTO"
+              : "PODE GIRAR"}
           </label>
+
           <input
             type="text"
             placeholder="Ambiente"
             className="col-span-3 border rounded p-2"
             value={pecas[pecas.length - 1].ambiente}
             onChange={(e) =>
-              handleChange(
-                pecas.length - 1,
-                "ambiente",
-                e.target.value
-              )
+              handleChange(pecas.length - 1, "ambiente", e.target.value)
             }
           />
         </div>
@@ -445,7 +460,7 @@ export default function Home() {
                 >
                   <td className="border px-2 py-1">{i + 1}</td>
                   <td className="border px-2 py-1">{p.qtde}</td>
-                  <td className="border px-2 py-1">{p.nome || "SEM ID"}</td>
+                  <td className="border px-2 py-1">{p.nome.trim()||"SEM ID"}</td>
                   <td className="border px-2 py-1">{p.c}</td>
                   <td className="border px-2 py-1">{p.l}</td>
                   <td className="border px-2 py-1">
