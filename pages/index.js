@@ -9,7 +9,7 @@ const materialCodeMap = {
   "Italian Noce Eucatex":     { "15.0": 1668 },
   "Cinza Itália Lacca Eucatex": { "15.0": 1670 },
   "Noce Oro Eucatex":         { "15.0": 1669 },
-  "OUTROS": {} // sempre código 823
+  "OUTROS": {}
 };
 
 function criarPeca(overrides = {}) {
@@ -80,7 +80,9 @@ export default function Home() {
         if (valor === "todos") {
           const t = !p.lados.todos;
           at.lados = { c1: t, c2: t, l1: t, l2: t, todos: t };
-        } else at.lados = { ...valor };
+        } else {
+          at.lados = { ...valor };
+        }
       } else if (campo === "chapa") {
         at.chapa = valor;
         at.fitaOutro = valor !== "OUTROS" ? valor : "";
@@ -130,13 +132,15 @@ export default function Home() {
     const lines = [
       headers.join(";"),
       ...pecas.map((p) => {
+        const nome = p.nome.trim() === "" ? "SEM ID" : p.nome;
         const obs = p.observacoes
           .map((o) => (o === "OUTROS" ? p.obsOutros : o))
           .join(", ");
         const esp = parseFloat(p.espessura).toFixed(1);
         const chapaNome = p.chapa === "OUTROS" ? p.outraChapa : p.chapa;
+        const fitaText = `FITA ${p.fitaOutro}`;
         return [
-          p.nome,
+          nome,
           getMaterialCode(p.chapa, p.espessura),
           p.c,
           p.l,
@@ -147,10 +151,10 @@ export default function Home() {
           obs,
           esp,
           chapaNome,
-          p.lados.c1 ? "X" : "",
-          p.lados.c2 ? "X" : "",
-          p.lados.l1 ? "X" : "",
-          p.lados.l2 ? "X" : "",
+          p.lados.c1 ? fitaText : "",
+          p.lados.c2 ? fitaText : "",
+          p.lados.l1 ? fitaText : "",
+          p.lados.l2 ? fitaText : "",
         ].join(";");
       }),
     ].join("\n");
@@ -190,7 +194,9 @@ export default function Home() {
             placeholder="Qtde"
             className="col-span-1 border rounded p-2"
             value={pecas[pecas.length - 1].qtde}
-            onChange={(e) => handleChange(pecas.length - 1, "qtde", e.target.value)}
+            onChange={(e) =>
+              handleChange(pecas.length - 1, "qtde", e.target.value)
+            }
             required
           />
           <input
@@ -198,7 +204,9 @@ export default function Home() {
             placeholder="Nome da peça"
             className="col-span-3 border rounded p-2"
             value={pecas[pecas.length - 1].nome}
-            onChange={(e) => handleChange(pecas.length - 1, "nome", e.target.value)}
+            onChange={(e) =>
+              handleChange(pecas.length - 1, "nome", e.target.value)
+            }
             required
           />
           <input
@@ -206,7 +214,9 @@ export default function Home() {
             placeholder="C (mm)"
             className="col-span-2 border rounded p-2"
             value={pecas[pecas.length - 1].c}
-            onChange={(e) => handleChange(pecas.length - 1, "c", e.target.value)}
+            onChange={(e) =>
+              handleChange(pecas.length - 1, "c", e.target.value)
+            }
             required
           />
           <input
@@ -214,13 +224,17 @@ export default function Home() {
             placeholder="L (mm)"
             className="col-span-2 border rounded p-2"
             value={pecas[pecas.length - 1].l}
-            onChange={(e) => handleChange(pecas.length - 1, "l", e.target.value)}
+            onChange={(e) =>
+              handleChange(pecas.length - 1, "l", e.target.value)
+            }
             required
           />
           <select
             className="col-span-2 border rounded p-2"
             value={pecas[pecas.length - 1].chapa}
-            onChange={(e) => handleChange(pecas.length - 1, "chapa", e.target.value)}
+            onChange={(e) =>
+              handleChange(pecas.length - 1, "chapa", e.target.value)
+            }
           >
             {chapas.map((c, i) => (
               <option key={i}>{c}</option>
@@ -232,14 +246,26 @@ export default function Home() {
               placeholder="Especifique chapa"
               className="col-span-2 border rounded p-2"
               value={pecas[pecas.length - 1].outraChapa}
-              onChange={(e) => handleChange(pecas.length - 1, "outraChapa", e.target.value)}
+              onChange={(e) =>
+                handleChange(
+                  pecas.length - 1,
+                  "outraChapa",
+                  e.target.value
+                )
+              }
               required
             />
           )}
           <select
             className="col-span-1 border rounded p-2"
             value={pecas[pecas.length - 1].espessura}
-            onChange={(e) => handleChange(pecas.length - 1, "espessura", e.target.value)}
+            onChange={(e) =>
+              handleChange(
+                pecas.length - 1,
+                "espessura",
+                e.target.value
+              )
+            }
           >
             {espessuras.map((e, i) => (
               <option key={i}>{e}</option>
@@ -251,17 +277,29 @@ export default function Home() {
               className="mr-2"
               checked={pecas[pecas.length - 1].veio}
               onChange={() =>
-                handleChange(pecas.length - 1, "veio", !pecas[pecas.length - 1].veio)
+                handleChange(
+                  pecas.length - 1,
+                  "veio",
+                  !pecas[pecas.length - 1].veio
+                )
               }
             />
-            {pecas[pecas.length - 1].veio ? "Segue comprimento" : "Pode girar"}
+            {pecas[pecas.length - 1].veio
+              ? "Segue comprimento"
+              : "Pode girar"}
           </label>
           <input
             type="text"
             placeholder="Ambiente"
             className="col-span-3 border rounded p-2"
             value={pecas[pecas.length - 1].ambiente}
-            onChange={(e) => handleChange(pecas.length - 1, "ambiente", e.target.value)}
+            onChange={(e) =>
+              handleChange(
+                pecas.length - 1,
+                "ambiente",
+                e.target.value
+              )
+            }
           />
         </div>
 
@@ -271,7 +309,13 @@ export default function Home() {
           <input
             className="w-full border rounded p-2"
             value={pecas[pecas.length - 1].fitaOutro}
-            onChange={(e) => handleChange(pecas.length - 1, "fitaOutro", e.target.value)}
+            onChange={(e) =>
+              handleChange(
+                pecas.length - 1,
+                "fitaOutro",
+                e.target.value
+              )
+            }
             required
           />
         </div>
@@ -301,7 +345,9 @@ export default function Home() {
                 type="checkbox"
                 className="mr-1"
                 checked={pecas[pecas.length - 1].lados.todos}
-                onChange={() => handleChange(pecas.length - 1, "lados", "todos")}
+                onChange={() =>
+                  handleChange(pecas.length - 1, "lados", "todos")
+                }
               />
               TODOS
             </label>
@@ -335,7 +381,9 @@ export default function Home() {
               placeholder="Especifique"
               className="mt-2 w-full border rounded p-2"
               value={pecas[pecas.length - 1].obsOutros}
-              onChange={(e) => handleChange(pecas.length - 1, "obsOutros", e.target.value)}
+              onChange={(e) =>
+                handleChange(pecas.length - 1, "obsOutros", e.target.value)
+              }
               required
             />
           )}
@@ -397,7 +445,7 @@ export default function Home() {
                 >
                   <td className="border px-2 py-1">{i + 1}</td>
                   <td className="border px-2 py-1">{p.qtde}</td>
-                  <td className="border px-2 py-1">{p.nome}</td>
+                  <td className="border px-2 py-1">{p.nome || "SEM ID"}</td>
                   <td className="border px-2 py-1">{p.c}</td>
                   <td className="border px-2 py-1">{p.l}</td>
                   <td className="border px-2 py-1">
@@ -408,10 +456,18 @@ export default function Home() {
                   </td>
                   <td className="border px-2 py-1">{p.veio ? "S" : "N"}</td>
                   <td className="border px-2 py-1">{p.ambiente}</td>
-                  <td className="border px-2 py-1">{p.lados.c1 ? "X" : ""}</td>
-                  <td className="border px-2 py-1">{p.lados.c2 ? "X" : ""}</td>
-                  <td className="border px-2 py-1">{p.lados.l1 ? "X" : ""}</td>
-                  <td className="border px-2 py-1">{p.lados.l2 ? "X" : ""}</td>
+                  <td className="border px-2 py-1">
+                    {p.lados.c1 ? `FITA ${p.fitaOutro}` : ""}
+                  </td>
+                  <td className="border px-2 py-1">
+                    {p.lados.c2 ? `FITA ${p.fitaOutro}` : ""}
+                  </td>
+                  <td className="border px-2 py-1">
+                    {p.lados.l1 ? `FITA ${p.fitaOutro}` : ""}
+                  </td>
+                  <td className="border px-2 py-1">
+                    {p.lados.l2 ? `FITA ${p.fitaOutro}` : ""}
+                  </td>
                   <td className="border px-2 py-1">{obsDisp}</td>
                 </tr>
               );
