@@ -1,3 +1,4 @@
+// pages/index.js
 import { useState } from "react";
 
 function criarPeca(overrides = {}) {
@@ -81,18 +82,15 @@ export default function Home() {
         }
       } else if (campo === "chapa") {
         atualizado.chapa = valor;
-        if (valor !== "OUTROS") {
-          atualizado.outraChapa = "";
-          atualizado.fitaOutro = valor;
-        } else {
-          atualizado.fitaOutro = "";
-        }
+        atualizado.fitaOutro = valor !== "OUTROS" ? valor : "";
+        if (valor !== "OUTROS") atualizado.outraChapa = "";
       } else if (campo === "outraChapa") {
         atualizado.outraChapa = valor;
         atualizado.fitaOutro = valor;
       } else {
         atualizado[campo] = valor;
       }
+
       return atualizado;
     });
     setPecas(novas);
@@ -182,7 +180,11 @@ export default function Home() {
               type="text"
               value={pecas[pecas.length - 1].outraChapa}
               onChange={(e) =>
-                handleChange(pecas.length - 1, "outraChapa", e.target.value)
+                handleChange(
+                  pecas.length - 1,
+                  "outraChapa",
+                  e.target.value
+                )
               }
               placeholder="Especifique chapa"
               className="col-span-2 border rounded p-2"
@@ -192,7 +194,11 @@ export default function Home() {
           <select
             value={pecas[pecas.length - 1].espessura}
             onChange={(e) =>
-              handleChange(pecas.length - 1, "espessura", e.target.value)
+              handleChange(
+                pecas.length - 1,
+                "espessura",
+                e.target.value
+              )
             }
             className="col-span-1 border rounded p-2"
           >
@@ -213,13 +219,19 @@ export default function Home() {
               }
               className="mr-2"
             />
-            {pecas[pecas.length - 1].veio ? "Segue comprimento" : "Pode girar"}
+            {pecas[pecas.length - 1].veio
+              ? "Segue comprimento"
+              : "Pode girar"}
           </label>
           <input
             type="text"
             value={pecas[pecas.length - 1].ambiente}
             onChange={(e) =>
-              handleChange(pecas.length - 1, "ambiente", e.target.value)
+              handleChange(
+                pecas.length - 1,
+                "ambiente",
+                e.target.value
+              )
             }
             placeholder="Ambiente"
             className="col-span-3 border rounded p-2"
@@ -232,7 +244,11 @@ export default function Home() {
             type="text"
             value={pecas[pecas.length - 1].fitaOutro}
             onChange={(e) =>
-              handleChange(pecas.length - 1, "fitaOutro", e.target.value)
+              handleChange(
+                pecas.length - 1,
+                "fitaOutro",
+                e.target.value
+              )
             }
             className="w-full border rounded p-2"
             required
@@ -332,7 +348,10 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Tabela de visualização */}
+      {/* Lista de Peças */}
+      <h2 className="text-xl font-bold mb-2">
+        Lista de Peças - Cliente: {cliente || "-"}
+      </h2>
       <div className="overflow-x-auto">
         <table className="w-full table-auto text-sm">
           <thead className="bg-gray-200">
@@ -343,50 +362,51 @@ export default function Home() {
               <th className="px-2 py-1">C (mm)</th>
               <th className="px-2 py-1">L (mm)</th>
               <th className="px-2 py-1">Chapa</th>
-              <th className="px-2 py-1">Esp</th>
+              <th className="px-2 py-1">Espessura</th>
               <th className="px-2 py-1">Veio</th>
               <th className="px-2 py-1">Ambiente</th>
-              <th className="px-2 py-1">Fita</th>
-              <th className="px-2 py-1">Lados</th>
+              <th className="px-2 py-1">Fita C1</th>
+              <th className="px-2 py-1">Fita C2</th>
+              <th className="px-2 py-1">Fita L1</th>
+              <th className="px-2 py-1">Fita L2</th>
               <th className="px-2 py-1">Obs</th>
             </tr>
           </thead>
           <tbody>
-            {pecas.map((p, i) => (
-              <tr
-                key={i}
-                onClick={() => setSelecionado(i)}
-                className={`cursor-pointer ${
-                  selecionado === i ? "bg-blue-100" : "hover:bg-gray-50"
-                }`}
-              >
-                <td className="border px-2 py-1">{i + 1}</td>
-                <td className="border px-2 py-1">{p.qtde}</td>
-                <td className="border px-2 py-1">{p.nome}</td>
-                <td className="border px-2 py-1">{p.c}</td>
-                <td className="border px-2 py-1">{p.l}</td>
-                <td className="border px-2 py-1">
-                  {p.chapa === "OUTROS" ? p.outraChapa : p.chapa}
-                </td>
-                <td className="border px-2 py-1">{p.espessura}</td>
-                <td className="border px-2 py-1">{p.veio ? "S" : "N"}</td>
-                <td className="border px-2 py-1">{p.ambiente}</td>
-                <td className="border px-2 py-1">{p.fitaOutro}</td>
-                <td className="border px-2 py-1">
-                  {["c1", "c2", "l1", "l2"]
-                    .filter((lado) => p.lados[lado])
-                    .join(", ") || "-"}
-                </td>
-                <td className="border px-2 py-1">
-                  {p.observacoes.join(", ") ||
-                    (p.obsOutros ? p.obsOutros : "-")}
-                </td>
-              </tr>
-            ))}
+            {pecas.map((p, i) => {
+              const obsDisplay = p.observacoes
+                .map((o) => (o === "OUTROS" ? p.obsOutros : o))
+                .join(", ") || "-";
+              return (
+                <tr
+                  key={i}
+                  onClick={() => setSelecionado(i)}
+                  className={`cursor-pointer ${
+                    selecionado === i ? "bg-blue-100" : "hover:bg-gray-50"
+                  }`}
+                >
+                  <td className="border px-2 py-1">{i + 1}</td>
+                  <td className="border px-2 py-1">{p.qtde}</td>
+                  <td className="border px-2 py-1">{p.nome}</td>
+                  <td className="border px-2 py-1">{p.c}</td>
+                  <td className="border px-2 py-1">{p.l}</td>
+                  <td className="border px-2 py-1">
+                    {p.chapa === "OUTROS" ? p.outraChapa : p.chapa}
+                  </td>
+                  <td className="border px-2 py-1">{p.espessura}</td>
+                  <td className="border px-2 py-1">{p.veio ? "S" : "N"}</td>
+                  <td className="border px-2 py-1">{p.ambiente}</td>
+                  <td className="border px-2 py-1">{p.lados.c1 ? "X" : ""}</td>
+                  <td className="border px-2 py-1">{p.lados.c2 ? "X" : ""}</td>
+                  <td className="border px-2 py-1">{p.lados.l1 ? "X" : ""}</td>
+                  <td className="border px-2 py-1">{p.lados.l2 ? "X" : ""}</td>
+                  <td className="border px-2 py-1">{obsDisplay}</td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
     </div>
   );
 }
-
